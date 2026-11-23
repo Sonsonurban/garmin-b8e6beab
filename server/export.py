@@ -26,7 +26,7 @@ from pathlib import Path
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from . import db, sync
+from . import analytics, db, sync
 
 MAGIC = b"MG1"
 ITERATIONS = 600_000  # must match web/app.js
@@ -70,27 +70,6 @@ def unpack_state(raw: bytes):
 
 
 # ---------- dashboard data ----------
-def build_bundle() -> dict:
-    from . import app  # reuse the exact same calculations the API uses
-
-    con = db.connect()
-    acts, off = [], 0
-    while True:
-        page = app.activities(limit=100, offset=off, type=None)
-        acts += page
-        if len(page) < 100:
-            break
-        off += 100
-    return {
-        "generated": datetime.now(timezone.utc).isoformat(),
-        "overview": app.overview(),
-        "activities": acts,
-        "activity": {str(a["id"]): app.activity(a["id"]) for a in acts},
-        "daily": app.daily(days=90),
-        "count": con.execute("SELECT COUNT(*) FROM activities").fetchone()[0],
-    }
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="site", help="folder for the static site")
@@ -129,7 +108,7 @@ def main():
     if out.exists():
         shutil.rmtree(out)
     shutil.copytree(ROOT / "web", out)
-    raw = gzip.compress(json.dumps(build_bundle(), separators=(",", ":")).encode(), 9)
+    raw = gzip.compress(json.dumps(analytics.build(), separators=(",", ":")).encode(), 9)
     (out / "data.bin").write_bytes(encrypt(passphrase, salt, raw))
     (out / ".nojekyll").write_text("")
 

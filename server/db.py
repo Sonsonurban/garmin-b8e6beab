@@ -51,7 +51,24 @@ CREATE TABLE IF NOT EXISTS daily (
 );
 
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
+
+CREATE TABLE IF NOT EXISTS curves (date TEXT PRIMARY KEY, json TEXT);   -- intraday stress / body battery / HR
 """
+
+# Columns added after the first version (added in place so an existing database keeps working).
+NEW_COLUMNS = {
+    "activities": [("series", "TEXT"), ("weather", "TEXT")],
+    "daily": [("extra", "TEXT")],
+}
+
+
+def migrate(con):
+    for table, cols in NEW_COLUMNS.items():
+        have = {r["name"] for r in con.execute(f"PRAGMA table_info({table})")}
+        for name, kind in cols:
+            if name not in have:
+                con.execute(f"ALTER TABLE {table} ADD COLUMN {name} {kind}")
+    con.commit()
 
 
 def connect() -> sqlite3.Connection:
@@ -59,6 +76,7 @@ def connect() -> sqlite3.Connection:
     con = sqlite3.connect(DB_PATH)
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    migrate(con)
     return con
 
 
