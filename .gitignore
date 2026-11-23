@@ -1,0 +1,12 @@
+.venv/
+data/
+data_demo/
+site/
+_site*/
+__pycache__/
+*.pyc
+garmin_tokens*
+state.enc
+_state*.enc
+.env
+.claude/

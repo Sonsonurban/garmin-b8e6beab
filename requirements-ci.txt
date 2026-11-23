@@ -1,0 +1,4 @@
+fastapi
+garminconnect
+curl_cffi
+cryptography
