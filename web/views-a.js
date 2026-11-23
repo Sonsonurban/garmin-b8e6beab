@@ -31,8 +31,8 @@ VIEWS.home = () => {
       <div>${ring(rec && rec.score, recColor(rec && rec.score), rec ? rec.score + "%" : "–", "")}<div class="rl">Recuperación</div></div>
       <div>${ring(eff == null ? null : Math.min(eff, 100), "var(--accent2)", eff == null ? "–" : eff + "%", "")}<div class="rl">Esfuerzo hoy</div></div>
       <div>${ring(row.sleepScore, "var(--z2)", row.sleepScore ?? "–", "")}<div class="rl">Sueño</div></div></div>
-    ${rec ? `<div class="parts">${rec.parts.map((p) => `<div class="part"><span>${esc(p.n)}</span><div class="pbar"><i style="width:${p.v}%;background:${recColor(p.v)}"></i></div><b class="num">${p.v}</b></div>`).join("")}</div>
-    <div class="muted note">Recuperación de ${dt(rd)}: compara cada señal con tus últimos 60 días. Esfuerzo: tu carga del día frente a tus días más exigentes${effY != null ? ` · ayer ${effY}%` : ""}.</div>` : ""}`, { sub: `Datos de ${dt(rd)}` });
+    ${rec ? `<div class="parts">${rec.parts.map((p) => `<div class="part"><span>${esc(p.n)}<em>${esc(p.raw)}</em></span><div class="pbar"><i style="width:${p.v}%;background:${recColor(p.v)}"></i></div><b class="num">${p.v}</b></div>`).join("")}</div>
+    <div class="muted note">Recuperación de ${dt(rd)}. Cada barra es un puntaje de 0 a 100: qué tan bien está esa señal frente a tus últimos 60 días (100 = tu mejor nivel). Esfuerzo: tu carga del día frente a tus días más exigentes${effY != null ? ` · ayer ${effY}%` : ""}.</div>` : ""}`, { sub: `Datos de ${dt(rd)}` });
 
   if (sl) h += card("Sueño", `<div class="row"><div class="stat hero"><div class="v num">${hm(sl.dur)}</div><div class="l">dormido · puntaje ${sl.score ?? "–"}</div></div>
       <div class="stat"><div class="v num">${sl.needAct ? hm(sl.needAct * 60) : "–"}</div><div class="l">necesidad de sueño</div></div></div>${stageBar(sl)}`, { right: `<button class="link" data-goto="health">Detalle ›</button>` });

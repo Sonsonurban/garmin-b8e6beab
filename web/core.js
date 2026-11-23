@@ -95,13 +95,13 @@ function recovery(date) {
   const row = D.dm.get(date); if (!row) return null;
   const hist = D.daily.filter((x) => x.date <= date && x.date > addDays(date, -60));
   const parts = [];
-  const hp = pctile(row.hrv, hist.map((x) => x.hrv)); if (hp != null) parts.push([hp, 0.4, "HRV"]);
-  const rp = pctile(row.rhr, hist.map((x) => x.rhr)); if (rp != null) parts.push([100 - rp, 0.2, "FC reposo"]);
-  if (row.sleepScore != null) parts.push([row.sleepScore, 0.25, "Sueño"]);
-  if (row.bbW != null) parts.push([row.bbW, 0.15, "Batería al despertar"]);
+  const hp = pctile(row.hrv, hist.map((x) => x.hrv)); if (hp != null) parts.push([hp, 0.4, "HRV", `${row.hrv} ms`]);
+  const rp = pctile(row.rhr, hist.map((x) => x.rhr)); if (rp != null) parts.push([100 - rp, 0.2, "FC reposo", `${row.rhr} lpm`]);
+  if (row.sleepScore != null) parts.push([row.sleepScore, 0.25, "Sueño", `puntaje ${row.sleepScore}`]);
+  if (row.bbW != null) parts.push([row.bbW, 0.15, "Batería al despertar", `${row.bbW}/100`]);
   if (parts.length < 2) return null;
   const w = sum(parts, (p) => p[1]);
-  return { score: Math.round(sum(parts, (p) => p[0] * p[1]) / w), parts: parts.map((p) => ({ v: Math.round(p[0]), n: p[2] })) };
+  return { score: Math.round(sum(parts, (p) => p[0] * p[1]) / w), parts: parts.map((p) => ({ v: Math.round(p[0]), n: p[2], raw: p[3] })) };
 }
 // effort of a day as % of your usual hard day (90th percentile of the last 90 days with training)
 function effortPct(date) {
